@@ -1,0 +1,7 @@
+<launch>
+	<include file="$(find test1_moveit_config)/launch/execute.launch">
+		<arg name="sim" default="true"/>
+	</include>
+	<node name="move_group_python_interface_tutorial" pkg="test1_moveit_config" type="mainNode.py" respawn="false" output="screen">
+	</node>
+</launch>

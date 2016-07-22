@@ -1,0 +1,42 @@
+<launch>
+  
+  <rosparam command="load" file="$(find test1_moveit_config)/config/joint_names_yumi.yaml"/>
+  
+  <arg name="sim" default="false" />
+  <arg name="robot_ip" unless="$(arg sim)" />
+  
+  <arg name="db" default="false" />
+  <include file="$(find test1_moveit_config)/launch/planning_context.launch" >
+    <arg name="load_robot_description" value="true" />
+  </include>
+
+  <!-- run the robot simulator and action interface nodes -->
+  <group if="$(arg sim)">
+    <include file="$(find industrial_robot_simulator)/launch/robot_interface_simulator.launch" />
+  </group>
+
+ <group unless="$(arg sim)">
+    <include file="$(find yumi_support)/launch/robot_interface.launch" >
+      <arg name="robot_ip" value="$(arg robot_ip)"/>
+    </include>
+  </group>
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+  <include file="$(find test1_moveit_config)/launch/move_group.launch">
+    <arg name="publish_monitored_planning_scene" value="true" />
+  </include>
+
+  <include file="$(find test1_moveit_config)/launch/moveit_rviz.launch">
+    <arg name="config" value="true"/>
+  </include>
+
+  <!-- If database loading was enabled, start mongodb as well -->
+  <include file="$(find test1_moveit_config)/launch/default_warehouse_db.launch" if="$(arg db)">
+    <arg name="moveit_warehouse_database_path" value="$(arg db_path)"/>
+  </include>
+  
+  <include file="$(find freenect_launch)/launch/examples/freenect-xyz.launch"></include>
+  
+</launch>
+
